@@ -73,9 +73,7 @@ body {
 }
 
 
-/* =========================================================
-   PLAIN NARRATION BOX
-========================================================= */
+
 
 /* =========================================================
    PLAIN NARRATION BOX
@@ -85,61 +83,40 @@ body {
     width: 75vw;
     min-width: 700px;
     height: 320px;
-
     border: 4px solid white;
-
-    padding: 24px;
-
+    padding: 18px 28px;
     margin: 0;
-
     box-sizing: border-box;
-
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;
-
     cursor: pointer;
     color: white;
 }
 
 .narration-text {
     display: grid;
-
-    grid-template-columns: 28px 1fr;
-
+    grid-template-columns: 20px 1fr;
     width: 100%;
-
     margin: 0;
     padding: 0;
-
     font-size: 32px;
     line-height: 1.45;
-
     text-align: left;
-
-    white-space: pre-wrap;
-
-    overflow-wrap: normal;
-    word-break: normal;
 }
 
 .narration-star {
     display: block;
-
-    width: 28px;
-
+    width: 20px;
     margin: 0;
     padding: 0;
 }
 
 .narration-content {
     display: block;
-
     min-width: 0;
-
     margin: 0;
     padding: 0;
-
     white-space: pre-wrap;
     overflow-wrap: normal;
     word-break: normal;
@@ -1645,98 +1622,53 @@ function showChoiceBox(
 ========================================================= */
 
 function showNarration(text, next) {
-
     stopTyping();
 
     game.innerHTML = `
         <div class="narration-box">
-
             <div class="narration-text">
-
                 <span class="narration-star">*</span>
-
                 <span class="narration-content"></span>
-
             </div>
-
         </div>
     `;
 
-    const box =
-        game.querySelector(
-            ".narration-box"
-        );
+    const box = game.querySelector(".narration-box");
+    const typedText = game.querySelector(".narration-content");
 
-    const typedText =
-        game.querySelector(
-            ".narration-content"
-        );
-
-    currentFullText =
-        text;
-
-    currentNext =
-        next;
-
-    isTyping =
-        true;
+    currentFullText = text;
+    currentNext = next;
+    isTyping = true;
 
     let index = 0;
 
-    typingTimer =
-        setInterval(function() {
+    typingTimer = setInterval(function() {
+        const character = currentFullText[index];
 
-            const character =
-                currentFullText[index];
+        typedText.textContent += character;
+        playVoiceBlip(character);
 
-            typedText.textContent +=
-                character;
+        index++;
 
-            playVoiceBlip(
-                character
-            );
-
-            index++;
-
-            if (
-                index >=
-                currentFullText.length
-            ) {
-
-                stopTyping();
-
-                isTyping =
-                    false;
-            }
-
-        }, TEXT_SPEED);
-
-
-    box.addEventListener(
-        "click",
-        function() {
-
-            if (isTyping) {
-
-                stopTyping();
-
-                typedText.textContent =
-                    currentFullText;
-
-                isTyping =
-                    false;
-
-                return;
-            }
-
-            if (currentNext) {
-                currentNext();
-            }
-
+        if (index >= currentFullText.length) {
+            stopTyping();
+            isTyping = false;
         }
-    );
-}
+    }, TEXT_SPEED);
 
+    box.addEventListener("click", function() {
+        if (isTyping) {
+            stopTyping();
+            typedText.textContent = currentFullText;
+            isTyping = false;
+            return;
+        }
+
+        if (currentNext) {
+            currentNext();
+        }
+    });
+}
 /* =========================================================
    SUBARU PORTRAIT DIALOGUE
 ========================================================= */
