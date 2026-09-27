@@ -99,28 +99,47 @@ body {
     display: block;
 }
 
-.narration-box .typed-text {
-    display: block;
+.narration-box .narration-line {
+    display: flex;
 
     width: 100%;
 
     margin: 0;
-
-    padding: 0 0 0 22px;
+    padding: 0;
 
     font-size: 32px;
-
     line-height: 1.45;
 
     text-align: left;
 
-    white-space: pre-wrap;
+    align-items: flex-start;
+}
 
+.narration-box .asterisk {
+    flex-shrink: 0;
+
+    margin: 0 8px 0 0;
+    padding: 0;
+}
+
+.narration-box .typed-text {
+    display: block;
+
+    flex: 1;
+
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    font-size: 32px;
+    line-height: 1.45;
+
+    text-align: left;
+
+    white-space: normal;
     overflow-wrap: normal;
-
     word-break: normal;
-
-    text-indent: -22px;
 }
 /* =========================================================
    CHOICE SCENE
@@ -1627,14 +1646,17 @@ function showNarration(text, next) {
 
     game.innerHTML = `
         <div class="narration-box">
-            <span class="typed-text"></span>
+            <div class="narration-line">
+                <span class="asterisk">*</span>
+                <span class="typed-text"></span>
+            </div>
         </div>
     `;
 
     const box = game.querySelector(".narration-box");
     const typedText = game.querySelector(".typed-text");
 
-    currentFullText = "*" + text;
+    currentFullText = text;
     currentNext = next;
     isTyping = true;
 
