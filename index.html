@@ -95,7 +95,6 @@ body {
     box-sizing: border-box;
 
     display: flex;
-    flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
 
@@ -103,22 +102,47 @@ body {
     color: white;
 }
 
-.narration-box .typed-text {
-    display: block;
+.narration-text {
+    display: grid;
+
+    grid-template-columns: 28px 1fr;
 
     width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    font-size: 32px;
+    line-height: 1.45;
+
+    text-align: left;
+
+    white-space: pre-wrap;
+
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.narration-star {
+    display: block;
+
+    width: 28px;
+
+    margin: 0;
+    padding: 0;
+}
+
+.narration-content {
+    display: block;
+
+    min-width: 0;
+
     margin: 0;
     padding: 0;
 
     white-space: pre-wrap;
     overflow-wrap: normal;
     word-break: normal;
-
-    text-align: left;
-    align-self: flex-start;
-
-    font-size: 32px;
-    line-height: 1.45;
 }
 /* =========================================================
    CHOICE SCENE
@@ -1626,7 +1650,15 @@ function showNarration(text, next) {
 
     game.innerHTML = `
         <div class="narration-box">
-            <span class="typed-text"></span>
+
+            <div class="narration-text">
+
+                <span class="narration-star">*</span>
+
+                <span class="narration-content"></span>
+
+            </div>
+
         </div>
     `;
 
@@ -1637,11 +1669,11 @@ function showNarration(text, next) {
 
     const typedText =
         game.querySelector(
-            ".typed-text"
+            ".narration-content"
         );
 
     currentFullText =
-        "*" + text;
+        text;
 
     currentNext =
         next;
