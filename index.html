@@ -80,23 +80,64 @@ body {
 ========================================================= */
 
 .narration-box {
+    position: relative;
+
     width: 75vw;
     min-width: 700px;
-    height: 320px;
+    min-height: 200px;
 
-    border: 4px solid white;
+    /* double thin border, black gap between the two lines */
+    border: 3px solid #eef0ff;
+    outline: 3px solid #eef0ff;
+    outline-offset: 6px;
 
-    padding: 12px 28px;
+    /* room for the outline + the corner sparkles */
+    margin: 14px 0;
 
-    margin: 0;
+    padding: 34px 44px;
 
     box-sizing: border-box;
 
     cursor: pointer;
 
-    color: white;
+    color: #eef0ff;
+
+    background: black;
 
     display: block;
+}
+
+.narration-box .corner {
+    position: absolute;
+
+    width: 20px;
+    height: 20px;
+
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z' fill='%23eef0ff'/></svg>");
+
+    pointer-events: none;
+}
+
+.narration-box .corner-tl {
+    top: -13px;
+    left: -13px;
+}
+
+.narration-box .corner-tr {
+    top: -13px;
+    right: -13px;
+}
+
+.narration-box .corner-bl {
+    bottom: -13px;
+    left: -13px;
+}
+
+.narration-box .corner-br {
+    bottom: -13px;
+    right: -13px;
 }
 
 .narration-box .narration-line {
@@ -107,8 +148,8 @@ body {
     margin: 0;
     padding: 0;
 
-    font-size: 32px;
-    line-height: 1.45;
+    font-size: 30px;
+    line-height: 1.5;
 
     text-align: left;
 
@@ -118,7 +159,7 @@ body {
 .narration-box .asterisk {
     flex-shrink: 0;
 
-    margin: 0 8px 0 0;
+    margin: 0 6px 0 0;
     padding: 0;
 }
 
@@ -132,14 +173,38 @@ body {
     margin: 0;
     padding: 0;
 
-    font-size: 32px;
-    line-height: 1.45;
+    font-size: 30px;
+    line-height: 1.5;
 
     text-align: left;
 
     white-space: normal;
     overflow-wrap: normal;
     word-break: normal;
+}
+
+.narration-box .next-arrow {
+    position: absolute;
+
+    bottom: -20px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #6fa3d8;
+
+    opacity: 0;
+
+    transition: opacity 0.15s ease;
+}
+
+.narration-box .next-arrow.visible {
+    opacity: 1;
 }
 /* =========================================================
    CHOICE SCENE
@@ -523,8 +588,8 @@ body {
     }
 
     .narration-box {
-        height: 260px;
-        padding: 6px 8px;
+        min-height: 260px;
+        padding: 28px;
         align-items: flex-start;
         justify-content: flex-start;
     }
@@ -1646,17 +1711,27 @@ function showNarration(text, next) {
 
     game.innerHTML = `
         <div class="narration-box">
+            <span class="corner corner-tl"></span>
+            <span class="corner corner-tr"></span>
+            <span class="corner corner-bl"></span>
+            <span class="corner corner-br"></span>
+
             <div class="narration-line">
                 <span class="asterisk">*</span>
                 <span class="typed-text"></span>
             </div>
+
+            <span class="next-arrow"></span>
         </div>
     `;
 
     const box = game.querySelector(".narration-box");
     const typedText = game.querySelector(".typed-text");
+    const nextArrow = game.querySelector(".next-arrow");
 
-    currentFullText = text;
+    // Deltarune-style narration is wrapped in parentheses, e.g. "* (You feel tired.)"
+    currentFullText = "(" + text + ")";
+
     currentNext = next;
     isTyping = true;
 
@@ -1673,6 +1748,7 @@ function showNarration(text, next) {
         if (index >= currentFullText.length) {
             stopTyping();
             isTyping = false;
+            nextArrow.classList.add("visible");
         }
     }, TEXT_SPEED);
 
@@ -1681,6 +1757,7 @@ function showNarration(text, next) {
             stopTyping();
             typedText.textContent = currentFullText;
             isTyping = false;
+            nextArrow.classList.add("visible");
             return;
         }
 
@@ -3206,4 +3283,3 @@ startPart1();
 
 </body>
 </html>
-
