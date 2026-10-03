@@ -17,27 +17,87 @@
     box-sizing: border-box;
 }
 
+html,
 body {
     margin: 0;
+    width: 100%;
+    height: 100%;
     background: black;
-    color: white;
-    font-family: "8BitOperator", monospace;
     overflow: hidden;
 }
 
+body {
+    color: white;
+    font-family: "8BitOperator", monospace;
+}
+
+
+/* =========================================================
+   GAME
+   ========================================================= */
+
 #game {
     position: relative;
+
     width: 100vw;
     height: 100vh;
+
     background: black;
+
     overflow: hidden;
+
     image-rendering: pixelated;
 }
 
 
-/* =========================
-   PLAYER HEART
-   ========================= */
+/* =========================================================
+   ROOM
+   ========================================================= */
+
+#room {
+    position: absolute;
+
+    /*
+       This is the actual area the SOUL can walk inside.
+    */
+
+    left: 5vw;
+    top: 5vh;
+
+    width: 90vw;
+    height: 75vh;
+
+    border: 5px solid white;
+
+    background: black;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   ROOM NAME
+   ========================================================= */
+
+#room-name {
+    position: absolute;
+
+    top: 15px;
+    left: 20px;
+
+    font-size: 18px;
+
+    color: white;
+
+    z-index: 50;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   PLAYER / SOUL
+   ========================================================= */
 
 #player {
     position: absolute;
@@ -46,77 +106,112 @@ body {
     height: 40px;
 
     object-fit: contain;
+
     image-rendering: pixelated;
 
-    z-index: 10;
-
     background: transparent;
+
     border: none;
+
     box-shadow: none;
 
     /*
-       images.png has a black area around
-       the red heart. Screen blending makes
-       that black area disappear against the
-       black game background.
+       Your PNG is used directly as the player.
+
+       Screen blending makes any black surrounding
+       area blend into the black room.
     */
+
     mix-blend-mode: screen;
+
+    z-index: 20;
 }
 
 
-/* =========================
-   OBJECT
-   ========================= */
+/* =========================================================
+   OBJECTS
+   ========================================================= */
 
-#object {
+.object {
     position: absolute;
-
-    width: 100px;
-    height: 100px;
-
-    left: 500px;
-    top: 250px;
 
     background: #222;
 
     border: 4px solid white;
 
-    z-index: 2;
+    z-index: 5;
 }
 
 
-/* =========================
+/* =========================================================
    INTERACTION HEART
-   ========================= */
+   ========================================================= */
 
-#interaction-heart {
+.interaction-heart {
     position: absolute;
 
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 
     object-fit: contain;
+
     image-rendering: pixelated;
+
+    background: transparent;
+
+    border: none;
 
     display: none;
 
     pointer-events: none;
 
-    z-index: 20;
+    z-index: 30;
 
     mix-blend-mode: screen;
 }
 
 
-/* =========================
+/* =========================================================
+   ROOM EXIT
+   ========================================================= */
+
+.exit {
+    position: absolute;
+
+    width: 80px;
+    height: 50px;
+
+    border: 4px solid white;
+
+    background: black;
+
+    z-index: 4;
+}
+
+.exit-label {
+    position: absolute;
+
+    width: 100%;
+
+    text-align: center;
+
+    top: 12px;
+
+    font-size: 13px;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
    CONTROLS
-   ========================= */
+   ========================================================= */
 
 #hint {
     position: absolute;
 
-    top: 20px;
-    left: 20px;
+    left: 5vw;
+    top: calc(5vh + 75vh + 20px);
 
     color: #aaa;
 
@@ -126,9 +221,9 @@ body {
 }
 
 
-/* =========================
-   DIALOGUE BOX
-   ========================= */
+/* =========================================================
+   DIALOGUE
+   ========================================================= */
 
 #dialogue {
     position: absolute;
@@ -139,6 +234,7 @@ body {
     transform: translateX(-50%);
 
     width: 80%;
+
     min-height: 150px;
 
     padding: 25px 30px;
@@ -156,12 +252,40 @@ body {
 
 #speaker {
     font-size: 20px;
+
     margin-bottom: 18px;
 }
 
 #text {
     font-size: 20px;
+
     line-height: 1.5;
+}
+
+
+/* =========================================================
+   ROOM TRANSITION MESSAGE
+   ========================================================= */
+
+#transition {
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform: translate(-50%, -50%);
+
+    color: white;
+
+    font-size: 24px;
+
+    display: none;
+
+    z-index: 200;
+
+    background: black;
+
+    padding: 20px;
 }
 
 </style>
@@ -172,39 +296,33 @@ body {
 
 <div id="game">
 
+    <!-- =====================================================
+         ROOM
+         ===================================================== -->
+
+    <div id="room">
+
+        <div id="room-name">
+            ROOM 1
+        </div>
+
+        <!-- Objects are generated by JavaScript -->
+
+    </div>
+
+
+    <!-- =====================================================
+         CONTROLS
+         ===================================================== -->
+
     <div id="hint">
         WASD: MOVE &nbsp;&nbsp; E / SPACE: INTERACT
     </div>
 
 
-    <!--
-        THIS IS NOW THE ACTUAL PLAYER.
-
-        The heart itself moves around the screen.
-    -->
-
-    <img
-        id="player"
-        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/images.png"
-        alt=""
-    >
-
-
-    <!-- Object that the player can interact with -->
-
-    <div id="object"></div>
-
-
-    <!-- Small heart that appears when near the object -->
-
-    <img
-        id="interaction-heart"
-        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/background-remover-1791003659354.png"
-        alt=""
-    >
-
-
-    <!-- Dialogue -->
+    <!-- =====================================================
+         DIALOGUE
+         ===================================================== -->
 
     <div id="dialogue">
 
@@ -216,82 +334,304 @@ body {
 
     </div>
 
+
+    <!-- =====================================================
+         ROOM TRANSITION
+         ===================================================== -->
+
+    <div id="transition">
+        ROOM 2
+    </div>
+
 </div>
 
 
 <script>
 
-/* =========================
+
+/* =========================================================
+   IMAGE
+   ========================================================= */
+
+const SOUL_IMAGE =
+    "https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/background-remover-1791003659354.png";
+
+
+/* =========================================================
    ELEMENTS
-   ========================= */
-
-const player = document.getElementById("player");
-
-const object = document.getElementById("object");
-
-const interactionHeart =
-    document.getElementById("interaction-heart");
-
-const dialogue =
-    document.getElementById("dialogue");
-
-const textBox =
-    document.getElementById("text");
+   ========================================================= */
 
 const game =
     document.getElementById("game");
 
+const room =
+    document.getElementById("room");
 
-/* =========================
-   PLAYER SETTINGS
-   ========================= */
+const roomName =
+    document.getElementById("room-name");
 
-let playerX = 200;
-let playerY = 200;
+const dialogue =
+    document.getElementById("dialogue");
+
+const speaker =
+    document.getElementById("speaker");
+
+const textBox =
+    document.getElementById("text");
+
+const transition =
+    document.getElementById("transition");
+
+
+/* =========================================================
+   PLAYER
+   ========================================================= */
+
+const player =
+    document.createElement("img");
+
+player.id = "player";
+
+player.src = SOUL_IMAGE;
+
+player.alt = "";
+
+room.appendChild(player);
+
+
+/* =========================================================
+   INTERACTION HEART
+   ========================================================= */
+
+const interactionHeart =
+    document.createElement("img");
+
+interactionHeart.className =
+    "interaction-heart";
+
+interactionHeart.src =
+    SOUL_IMAGE;
+
+interactionHeart.alt = "";
+
+room.appendChild(interactionHeart);
+
+
+/* =========================================================
+   ROOM DATA
+   =========================================================
+
+   This is the part you can easily expand later.
+
+   Every room can have as many objects as you want.
+   ========================================================= */
+
+const rooms = {
+
+
+    /* =====================================================
+       ROOM 1
+       ===================================================== */
+
+    room1: {
+
+        name: "ROOM 1",
+
+        startX: 120,
+        startY: 150,
+
+        objects: [
+
+            {
+                id: "box1",
+
+                x: 550,
+                y: 250,
+
+                width: 100,
+                height: 100,
+
+                name: "BOX",
+
+                dialogue: [
+
+                    "You found something.",
+
+                    "It's a strange box.",
+
+                    "You don't know what it does."
+
+                ]
+
+            }
+
+        ],
+
+        exit: {
+
+            x: 800,
+            y: 500,
+
+            width: 80,
+            height: 50,
+
+            target: "room2"
+
+        }
+
+    },
+
+
+    /* =====================================================
+       ROOM 2
+       ===================================================== */
+
+    room2: {
+
+        name: "ROOM 2",
+
+        startX: 120,
+        startY: 150,
+
+        objects: [
+
+            {
+
+                id: "box2",
+
+                x: 300,
+                y: 250,
+
+                width: 100,
+                height: 100,
+
+                name: "BOX",
+
+                dialogue: [
+
+                    "There is another box.",
+
+                    "This one looks older."
+
+                ]
+
+            },
+
+
+            {
+
+                id: "box3",
+
+                x: 600,
+                y: 350,
+
+                width: 100,
+                height: 100,
+
+                name: "BOX",
+
+                dialogue: [
+
+                    "You found a second object.",
+
+                    "It feels strangely familiar."
+
+                ]
+
+            }
+
+        ],
+
+        exit: {
+
+            x: 800,
+            y: 500,
+
+            width: 80,
+            height: 50,
+
+            target: "room1"
+
+        }
+
+    }
+
+};
+
+
+/* =========================================================
+   CURRENT ROOM
+   ========================================================= */
+
+let currentRoom = "room1";
+
+
+/* =========================================================
+   PLAYER POSITION
+   ========================================================= */
+
+let playerX = 120;
+let playerY = 150;
 
 const playerSpeed = 4;
+
+
+/* =========================================================
+   KEYS
+   ========================================================= */
 
 const keys = {};
 
 
-/* =========================
-   DIALOGUE SETTINGS
-   ========================= */
+/* =========================================================
+   GAME STATE
+   ========================================================= */
 
 let talking = false;
 
 let dialogueIndex = 0;
 
-const dialogueLines = [
+let currentDialogue = [];
 
-    "You found something.",
-
-    "It's just a strange box.",
-
-    "You don't know what it does."
-
-];
+let currentSpeaker = "OBJECT";
 
 
-/* =========================
-   KEYBOARD INPUT
-   ========================= */
+/* =========================================================
+   ROOM OBJECT ELEMENTS
+   ========================================================= */
+
+let objectElements = [];
+
+let exitElement = null;
+
+
+/* =========================================================
+   KEY DOWN
+   ========================================================= */
 
 document.addEventListener("keydown", function(event) {
 
-    const key = event.key.toLowerCase();
+    const key =
+        event.key.toLowerCase();
+
 
     keys[key] = true;
 
 
-    /* Prevent Space from scrolling the page */
+    /*
+       Prevent Space from scrolling.
+    */
 
     if (event.key === " ") {
+
         event.preventDefault();
+
     }
 
 
-    /* E or Space */
+    /*
+       E / Space interaction.
+    */
 
     if (
         key === "e" ||
@@ -313,6 +653,10 @@ document.addEventListener("keydown", function(event) {
 });
 
 
+/* =========================================================
+   KEY UP
+   ========================================================= */
+
 document.addEventListener("keyup", function(event) {
 
     keys[event.key.toLowerCase()] = false;
@@ -320,68 +664,149 @@ document.addEventListener("keyup", function(event) {
 });
 
 
-/* =========================
-   MOVEMENT
-   ========================= */
+/* =========================================================
+   CREATE ROOM
+   ========================================================= */
 
-function updateMovement() {
+function loadRoom(roomID) {
 
-    /*
-       Don't allow movement while talking.
-    */
+    currentRoom = roomID;
 
-    if (talking) {
-        return;
-    }
-
-
-    /* WASD */
-
-    if (keys["w"]) {
-        playerY -= playerSpeed;
-    }
-
-    if (keys["s"]) {
-        playerY += playerSpeed;
-    }
-
-    if (keys["a"]) {
-        playerX -= playerSpeed;
-    }
-
-    if (keys["d"]) {
-        playerX += playerSpeed;
-    }
+    const data =
+        rooms[currentRoom];
 
 
     /*
-       Keep the heart inside the screen.
+       Remove previous objects.
     */
 
-    const maxX =
-        game.clientWidth - player.offsetWidth;
+    for (const element of objectElements) {
 
-    const maxY =
-        game.clientHeight - player.offsetHeight;
+        element.remove();
 
+    }
+
+    objectElements = [];
+
+
+    /*
+       Remove old exit.
+    */
+
+    if (exitElement) {
+
+        exitElement.remove();
+
+        exitElement = null;
+
+    }
+
+
+    /*
+       Update room name.
+    */
+
+    roomName.textContent =
+        data.name;
+
+
+    /*
+       Create objects.
+    */
+
+    data.objects.forEach(function(objectData) {
+
+        const element =
+            document.createElement("div");
+
+        element.className =
+            "object";
+
+        element.dataset.objectId =
+            objectData.id;
+
+
+        element.style.left =
+            objectData.x + "px";
+
+        element.style.top =
+            objectData.y + "px";
+
+        element.style.width =
+            objectData.width + "px";
+
+        element.style.height =
+            objectData.height + "px";
+
+
+        room.appendChild(element);
+
+        objectElements.push(element);
+
+    });
+
+
+    /*
+       Create exit.
+    */
+
+    exitElement =
+        document.createElement("div");
+
+    exitElement.className =
+        "exit";
+
+
+    exitElement.style.left =
+        data.exit.x + "px";
+
+    exitElement.style.top =
+        data.exit.y + "px";
+
+    exitElement.style.width =
+        data.exit.width + "px";
+
+    exitElement.style.height =
+        data.exit.height + "px";
+
+
+    const exitLabel =
+        document.createElement("div");
+
+    exitLabel.className =
+        "exit-label";
+
+    exitLabel.textContent =
+        "EXIT";
+
+
+    exitElement.appendChild(exitLabel);
+
+    room.appendChild(exitElement);
+
+
+    /*
+       Put the player at the room's
+       starting position.
+    */
 
     playerX =
-        Math.max(
-            0,
-            Math.min(playerX, maxX)
-        );
-
+        data.startX;
 
     playerY =
-        Math.max(
-            0,
-            Math.min(playerY, maxY)
-        );
+        data.startY;
 
 
-    /*
-       Actually move the PNG.
-    */
+    updatePlayerPosition();
+
+}
+
+
+/* =========================================================
+   PLAYER POSITION
+   ========================================================= */
+
+function updatePlayerPosition() {
 
     player.style.left =
         playerX + "px";
@@ -392,11 +817,275 @@ function updateMovement() {
 }
 
 
-/* =========================
-   DISTANCE TO OBJECT
-   ========================= */
+/* =========================================================
+   COLLISION RECTANGLE
+   ========================================================= */
 
-function getDistance() {
+function getPlayerRect(x, y) {
+
+    return {
+
+        left: x,
+
+        top: y,
+
+        right:
+            x +
+            player.offsetWidth,
+
+        bottom:
+            y +
+            player.offsetHeight
+
+    };
+
+}
+
+
+/* =========================================================
+   RECTANGLE COLLISION
+   ========================================================= */
+
+function rectanglesOverlap(a, b) {
+
+    return (
+
+        a.left < b.right &&
+
+        a.right > b.left &&
+
+        a.top < b.bottom &&
+
+        a.bottom > b.top
+
+    );
+
+}
+
+
+/* =========================================================
+   OBJECT RECTANGLE
+   ========================================================= */
+
+function getObjectRect(element) {
+
+    return {
+
+        left:
+            element.offsetLeft,
+
+        top:
+            element.offsetTop,
+
+        right:
+            element.offsetLeft +
+            element.offsetWidth,
+
+        bottom:
+            element.offsetTop +
+            element.offsetHeight
+
+    };
+
+}
+
+
+/* =========================================================
+   CAN MOVE TO POSITION
+   ========================================================= */
+
+function canMoveTo(x, y) {
+
+    const playerRect =
+        getPlayerRect(x, y);
+
+
+    /*
+       Room boundaries.
+
+       The player must remain completely
+       inside the white border.
+    */
+
+    const roomWidth =
+        room.clientWidth;
+
+    const roomHeight =
+        room.clientHeight;
+
+
+    if (playerRect.left < 5) {
+
+        return false;
+
+    }
+
+
+    if (
+        playerRect.top < 5
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        playerRect.right >
+        roomWidth - 5
+    ) {
+
+        return false;
+
+    }
+
+
+    if (
+        playerRect.bottom >
+        roomHeight - 5
+    ) {
+
+        return false;
+
+    }
+
+
+    /*
+       Check every object.
+    */
+
+    for (
+        const element
+        of objectElements
+    ) {
+
+        const objectRect =
+            getObjectRect(element);
+
+
+        if (
+            rectanglesOverlap(
+                playerRect,
+                objectRect
+            )
+        ) {
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+/* =========================================================
+   MOVEMENT
+   ========================================================= */
+
+function updateMovement() {
+
+    if (talking) {
+
+        return;
+
+    }
+
+
+    let newX =
+        playerX;
+
+    let newY =
+        playerY;
+
+
+    /*
+       Horizontal movement.
+    */
+
+    if (keys["a"]) {
+
+        newX -= playerSpeed;
+
+    }
+
+    if (keys["d"]) {
+
+        newX += playerSpeed;
+
+    }
+
+
+    /*
+       Test horizontal movement
+       separately.
+
+       This means you can slide along
+       the side of an object.
+    */
+
+    if (
+        canMoveTo(
+            newX,
+            playerY
+        )
+    ) {
+
+        playerX =
+            newX;
+
+    }
+
+
+    /*
+       Vertical movement.
+    */
+
+    if (keys["w"]) {
+
+        newY -= playerSpeed;
+
+    }
+
+    if (keys["s"]) {
+
+        newY += playerSpeed;
+
+    }
+
+
+    /*
+       Test vertical movement.
+    */
+
+    if (
+        canMoveTo(
+            playerX,
+            newY
+        )
+    ) {
+
+        playerY =
+            newY;
+
+    }
+
+
+    updatePlayerPosition();
+
+}
+
+
+/* =========================================================
+   DISTANCE BETWEEN PLAYER AND OBJECT
+   ========================================================= */
+
+function getDistanceToObject(
+    objectElement
+) {
 
     const playerCenterX =
         playerX +
@@ -408,12 +1097,12 @@ function getDistance() {
 
 
     const objectCenterX =
-        object.offsetLeft +
-        object.offsetWidth / 2;
+        objectElement.offsetLeft +
+        objectElement.offsetWidth / 2;
 
     const objectCenterY =
-        object.offsetTop +
-        object.offsetHeight / 2;
+        objectElement.offsetTop +
+        objectElement.offsetHeight / 2;
 
 
     const dx =
@@ -433,15 +1122,63 @@ function getDistance() {
 }
 
 
-/* =========================
-   INTERACTION INDICATOR
-   ========================= */
+/* =========================================================
+   FIND NEAREST OBJECT
+   ========================================================= */
+
+function getNearestObject() {
+
+    let nearest = null;
+
+    let nearestDistance =
+        Infinity;
+
+
+    objectElements.forEach(
+        function(element, index) {
+
+            const distance =
+                getDistanceToObject(
+                    element
+                );
+
+
+            if (
+                distance <
+                nearestDistance
+            ) {
+
+                nearestDistance =
+                    distance;
+
+                nearest = {
+
+                    element:
+                        element,
+
+                    data:
+                        rooms[
+                            currentRoom
+                        ].objects[index]
+
+                };
+
+            }
+
+        }
+    );
+
+
+    return nearest;
+
+}
+
+
+/* =========================================================
+   INTERACTION
+   ========================================================= */
 
 function updateInteraction() {
-
-    /*
-       Hide the small heart while talking.
-    */
 
     if (talking) {
 
@@ -449,18 +1186,24 @@ function updateInteraction() {
             "none";
 
         return;
+
     }
 
 
-    const distance =
-        getDistance();
+    const nearest =
+        getNearestObject();
 
 
     /*
-       Show it when close enough.
+       Object interaction distance.
     */
 
-    if (distance < 120) {
+    if (
+        nearest &&
+        getDistanceToObject(
+            nearest.element
+        ) < 120
+    ) {
 
         interactionHeart.style.display =
             "block";
@@ -468,57 +1211,181 @@ function updateInteraction() {
 
         interactionHeart.style.left =
             (
-                object.offsetLeft +
-                object.offsetWidth / 2 -
-                10
+                nearest.element.offsetLeft +
+                nearest.element.offsetWidth / 2 -
+                12
             ) + "px";
 
 
         interactionHeart.style.top =
             (
-                object.offsetTop -
-                30
+                nearest.element.offsetTop -
+                32
             ) + "px";
 
 
-    } else {
-
-        interactionHeart.style.display =
-            "none";
+        return;
 
     }
+
+
+    /*
+       Check the room exit.
+    */
+
+    if (
+        exitElement &&
+        isNearExit()
+    ) {
+
+        interactionHeart.style.display =
+            "block";
+
+
+        interactionHeart.style.left =
+            (
+                exitElement.offsetLeft +
+                exitElement.offsetWidth / 2 -
+                12
+            ) + "px";
+
+
+        interactionHeart.style.top =
+            (
+                exitElement.offsetTop -
+                32
+            ) + "px";
+
+
+        return;
+
+    }
+
+
+    interactionHeart.style.display =
+        "none";
 
 }
 
 
-/* =========================
+/* =========================================================
+   EXIT DISTANCE
+   ========================================================= */
+
+function isNearExit() {
+
+    if (!exitElement) {
+
+        return false;
+
+    }
+
+
+    const playerCenterX =
+        playerX +
+        player.offsetWidth / 2;
+
+    const playerCenterY =
+        playerY +
+        player.offsetHeight / 2;
+
+
+    const exitCenterX =
+        exitElement.offsetLeft +
+        exitElement.offsetWidth / 2;
+
+    const exitCenterY =
+        exitElement.offsetTop +
+        exitElement.offsetHeight / 2;
+
+
+    const dx =
+        playerCenterX -
+        exitCenterX;
+
+    const dy =
+        playerCenterY -
+        exitCenterY;
+
+
+    const distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    return distance < 100;
+
+}
+
+
+/* =========================================================
    INTERACT
-   ========================= */
+   ========================================================= */
 
 function tryInteract() {
 
-    const distance =
-        getDistance();
+    /*
+       First check objects.
+    */
+
+    const nearest =
+        getNearestObject();
 
 
-    if (distance < 120) {
+    if (
+        nearest &&
+        getDistanceToObject(
+            nearest.element
+        ) < 120
+    ) {
 
-        startDialogue();
+        startDialogue(
+            nearest.data.name,
+            nearest.data.dialogue
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Then check the exit.
+    */
+
+    if (isNearExit()) {
+
+        changeRoom();
 
     }
 
 }
 
 
-/* =========================
+/* =========================================================
    START DIALOGUE
-   ========================= */
+   ========================================================= */
 
-function startDialogue() {
+function startDialogue(
+    objectName,
+    lines
+) {
 
     talking = true;
 
     dialogueIndex = 0;
+
+    currentDialogue =
+        lines;
+
+    currentSpeaker =
+        objectName;
+
+
+    speaker.textContent =
+        currentSpeaker;
 
 
     dialogue.style.display =
@@ -534,35 +1401,32 @@ function startDialogue() {
 }
 
 
-/* =========================
+/* =========================================================
    SHOW DIALOGUE
-   ========================= */
+   ========================================================= */
 
 function showDialogueLine() {
 
     textBox.textContent =
-        dialogueLines[dialogueIndex];
+        currentDialogue[
+            dialogueIndex
+        ];
 
 }
 
 
-/* =========================
-   NEXT DIALOGUE
-   ========================= */
+/* =========================================================
+   ADVANCE DIALOGUE
+   ========================================================= */
 
 function advanceDialogue() {
 
     dialogueIndex++;
 
 
-    /*
-       If there are no more lines,
-       close the dialogue.
-    */
-
     if (
         dialogueIndex >=
-        dialogueLines.length
+        currentDialogue.length
     ) {
 
         closeDialogue();
@@ -577,9 +1441,9 @@ function advanceDialogue() {
 }
 
 
-/* =========================
+/* =========================================================
    CLOSE DIALOGUE
-   ========================= */
+   ========================================================= */
 
 function closeDialogue() {
 
@@ -591,16 +1455,15 @@ function closeDialogue() {
 }
 
 
-/* =========================
-   CLICK DIALOGUE
-   ========================= */
+/* =========================================================
+   DIALOGUE CLICK
+   ========================================================= */
 
 dialogue.addEventListener(
     "click",
     function(event) {
 
         event.stopPropagation();
-
 
         if (talking) {
 
@@ -612,9 +1475,44 @@ dialogue.addEventListener(
 );
 
 
-/* =========================
+/* =========================================================
+   CHANGE ROOM
+   ========================================================= */
+
+function changeRoom() {
+
+    const target =
+        rooms[
+            currentRoom
+        ].exit.target;
+
+
+    /*
+       Small transition effect.
+    */
+
+    transition.textContent =
+        rooms[target].name;
+
+    transition.style.display =
+        "block";
+
+
+    setTimeout(function() {
+
+        transition.style.display =
+            "none";
+
+        loadRoom(target);
+
+    }, 250);
+
+}
+
+
+/* =========================================================
    GAME LOOP
-   ========================= */
+   ========================================================= */
 
 function gameLoop() {
 
@@ -622,16 +1520,21 @@ function gameLoop() {
 
     updateInteraction();
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(
+        gameLoop
+    );
 
 }
 
 
-/* =========================
-   START GAME
-   ========================= */
+/* =========================================================
+   START
+   ========================================================= */
+
+loadRoom("room1");
 
 gameLoop();
+
 
 </script>
 
