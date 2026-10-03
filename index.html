@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Neocities Game Test</title>
+<title>Game Test</title>
 
 <style>
+
 @font-face {
     font-family: "8BitOperator";
     src: url("https://deltarune.com/assets/fonts/8bitOperatorPlus-Bold.woff");
@@ -24,35 +25,51 @@ body {
     overflow: hidden;
 }
 
+
+/* =========================
+   GAME
+========================= */
+
 #game {
+
     position: relative;
+
     width: 100vw;
     height: 100vh;
+
     background: black;
+
     overflow: hidden;
+
+    image-rendering: pixelated;
 }
 
-/* PLAYER */
+
+/* =========================
+   PLAYER
+========================= */
 
 #player {
+
     position: absolute;
-    width: 64px;
-    height: 64px;
 
-    /* TEMPORARY PLAYER */
-    background: white;
+    width: 32px;
+    height: 32px;
 
-    left: 200px;
-    top: 200px;
+    object-fit: contain;
 
     image-rendering: pixelated;
 
-    z-index: 5;
+    z-index: 10;
 }
 
-/* INTERACTABLE OBJECT */
+
+/* =========================
+   INTERACTABLE OBJECT
+========================= */
 
 #object {
+
     position: absolute;
 
     width: 100px;
@@ -62,31 +79,61 @@ body {
     top: 250px;
 
     background: #222;
+
     border: 4px solid white;
 
     z-index: 2;
 }
 
-/* HEART */
 
-#heart {
+/* =========================
+   INTERACTION HEART
+========================= */
+
+#interaction-heart {
+
     position: absolute;
 
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
 
-    display: none;
+    object-fit: contain;
 
     image-rendering: pixelated;
 
-    z-index: 10;
+    display: none;
 
     pointer-events: none;
+
+    z-index: 20;
 }
 
-/* DIALOGUE */
+
+/* =========================
+   CONTROLS
+========================= */
+
+#hint {
+
+    position: absolute;
+
+    top: 20px;
+    left: 20px;
+
+    color: #aaa;
+
+    font-size: 14px;
+
+    z-index: 50;
+}
+
+
+/* =========================
+   DIALOGUE BOX
+========================= */
 
 #dialogue {
+
     position: absolute;
 
     left: 50%;
@@ -95,61 +142,83 @@ body {
     transform: translateX(-50%);
 
     width: 80%;
+
     min-height: 150px;
 
-    border: 4px solid white;
+    padding: 25px 30px;
 
     background: black;
 
-    padding: 28px 35px;
+    border: 4px solid white;
 
     display: none;
 
     z-index: 100;
+
+    cursor: pointer;
 }
 
+
+/* SPEAKER */
+
 #speaker {
-    font-size: 22px;
+
+    font-size: 20px;
+
     margin-bottom: 18px;
 }
 
+
+/* TEXT */
+
 #text {
+
     font-size: 20px;
+
     line-height: 1.5;
+
 }
 
-#hint {
-    position: absolute;
-
-    top: 20px;
-    left: 20px;
-
-    font-size: 14px;
-
-    color: #aaa;
-
-    z-index: 20;
-}
 </style>
 </head>
+
 
 <body>
 
 <div id="game">
 
+
+    <!-- CONTROLS -->
+
     <div id="hint">
         WASD: MOVE &nbsp;&nbsp; E / SPACE: INTERACT
     </div>
 
-    <div id="player"></div>
 
-    <div id="object"></div>
+    <!-- PLAYER -->
 
     <img
-        id="heart"
+        id="player"
         src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/heart.png"
         alt=""
     >
+
+
+    <!-- INTERACTABLE OBJECT -->
+
+    <div id="object"></div>
+
+
+    <!-- SMALL HEART THAT APPEARS WHEN CLOSE -->
+
+    <img
+        id="interaction-heart"
+        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/heart.png"
+        alt=""
+    >
+
+
+    <!-- DIALOGUE -->
 
     <div id="dialogue">
 
@@ -161,23 +230,33 @@ body {
 
     </div>
 
+
 </div>
+
 
 <script>
 
 /* =========================
-   SETTINGS
+   ELEMENTS
 ========================= */
 
-const player = document.getElementById("player");
-const object = document.getElementById("object");
-const heart = document.getElementById("heart");
+const player =
+    document.getElementById("player");
 
-const dialogue = document.getElementById("dialogue");
-const speaker = document.getElementById("speaker");
-const textBox = document.getElementById("text");
+const object =
+    document.getElementById("object");
 
-const game = document.getElementById("game");
+const interactionHeart =
+    document.getElementById("interaction-heart");
+
+const dialogue =
+    document.getElementById("dialogue");
+
+const textBox =
+    document.getElementById("text");
+
+const game =
+    document.getElementById("game");
 
 
 /* =========================
@@ -197,12 +276,17 @@ const keys = {};
 ========================= */
 
 let talking = false;
+
 let dialogueIndex = 0;
 
 const dialogueLines = [
+
     "You found something.",
-    "It appears to be a strange box.",
+
+    "It's just a strange box.",
+
     "You don't know what it does."
+
 ];
 
 
@@ -210,50 +294,53 @@ const dialogueLines = [
    KEYBOARD
 ========================= */
 
-document.addEventListener("keydown", function(event) {
+document.addEventListener(
+    "keydown",
+    function(event) {
 
-    keys[event.key.toLowerCase()] = true;
+        keys[event.key.toLowerCase()] = true;
 
-    /*
-       Prevent the browser from scrolling
-       when using Space or arrow keys.
-    */
 
-    if (
-        event.key === " " ||
-        event.key === "ArrowUp" ||
-        event.key === "ArrowDown" ||
-        event.key === "ArrowLeft" ||
-        event.key === "ArrowRight"
-    ) {
-        event.preventDefault();
-    }
+        /* Prevent Space from scrolling */
 
-    if (
-        event.key.toLowerCase() === "e" ||
-        event.key === " "
-    ) {
+        if (event.key === " ") {
 
-        if (talking) {
+            event.preventDefault();
 
-            advanceDialogue();
+        }
 
-        } else {
 
-            tryInteract();
+        /* INTERACTION */
+
+        if (
+            event.key.toLowerCase() === "e" ||
+            event.key === " "
+        ) {
+
+            if (talking) {
+
+                advanceDialogue();
+
+            } else {
+
+                tryInteract();
+
+            }
 
         }
 
     }
+);
 
-});
 
+document.addEventListener(
+    "keyup",
+    function(event) {
 
-document.addEventListener("keyup", function(event) {
+        keys[event.key.toLowerCase()] = false;
 
-    keys[event.key.toLowerCase()] = false;
-
-});
+    }
+);
 
 
 /* =========================
@@ -265,6 +352,7 @@ function updateMovement() {
     if (talking) {
         return;
     }
+
 
     if (keys["w"]) {
         playerY -= playerSpeed;
@@ -283,22 +371,40 @@ function updateMovement() {
     }
 
 
-    /* Keep player inside game */
+    /* Keep player inside screen */
 
-    const maxX = game.clientWidth - player.offsetWidth;
-    const maxY = game.clientHeight - player.offsetHeight;
+    const maxX =
+        game.clientWidth - player.offsetWidth;
 
-    playerX = Math.max(0, Math.min(playerX, maxX));
-    playerY = Math.max(0, Math.min(playerY, maxY));
+    const maxY =
+        game.clientHeight - player.offsetHeight;
 
 
-    player.style.left = playerX + "px";
-    player.style.top = playerY + "px";
+    playerX =
+        Math.max(
+            0,
+            Math.min(playerX, maxX)
+        );
+
+
+    playerY =
+        Math.max(
+            0,
+            Math.min(playerY, maxY)
+        );
+
+
+    player.style.left =
+        playerX + "px";
+
+    player.style.top =
+        playerY + "px";
+
 }
 
 
 /* =========================
-   DISTANCE CHECK
+   DISTANCE
 ========================= */
 
 function getDistance() {
@@ -310,57 +416,81 @@ function getDistance() {
         playerY + player.offsetHeight / 2;
 
 
-    const objectX =
-        object.offsetLeft + object.offsetWidth / 2;
+    const objectCenterX =
+        object.offsetLeft +
+        object.offsetWidth / 2;
 
-    const objectY =
-        object.offsetTop + object.offsetHeight / 2;
+    const objectCenterY =
+        object.offsetTop +
+        object.offsetHeight / 2;
 
 
-    const dx = playerCenterX - objectX;
-    const dy = playerCenterY - objectY;
+    const dx =
+        playerCenterX - objectCenterX;
+
+    const dy =
+        playerCenterY - objectCenterY;
 
 
     return Math.sqrt(
         dx * dx + dy * dy
     );
+
 }
 
 
 /* =========================
-   INTERACTION RANGE
+   INTERACTION INDICATOR
 ========================= */
 
 function updateInteraction() {
 
     if (talking) {
 
-        heart.style.display = "none";
+        interactionHeart.style.display =
+            "none";
+
         return;
 
     }
 
-    const distance = getDistance();
+
+    const distance =
+        getDistance();
+
 
     if (distance < 120) {
 
+        interactionHeart.style.display =
+            "block";
+
+
         /*
-           Put the heart above the player.
+           Put the small heart
+           above the object.
         */
 
-        heart.style.display = "block";
+        interactionHeart.style.left =
+            (
+                object.offsetLeft +
+                object.offsetWidth / 2 -
+                10
+            ) + "px";
 
-        heart.style.left =
-            (playerX + 21) + "px";
 
-        heart.style.top =
-            (playerY - 30) + "px";
+        interactionHeart.style.top =
+            (
+                object.offsetTop - 30
+            ) + "px";
+
 
     } else {
 
-        heart.style.display = "none";
+        interactionHeart.style.display =
+            "none";
 
     }
+
 }
 
 
@@ -370,7 +500,9 @@ function updateInteraction() {
 
 function tryInteract() {
 
-    const distance = getDistance();
+    const distance =
+        getDistance();
+
 
     if (distance < 120) {
 
@@ -391,7 +523,11 @@ function startDialogue() {
 
     dialogueIndex = 0;
 
-    dialogue.style.display = "block";
+    dialogue.style.display =
+        "block";
+
+    interactionHeart.style.display =
+        "none";
 
     showDialogueLine();
 
@@ -399,7 +535,7 @@ function startDialogue() {
 
 
 /* =========================
-   SHOW LINE
+   SHOW DIALOGUE
 ========================= */
 
 function showDialogueLine() {
@@ -419,7 +555,10 @@ function advanceDialogue() {
     dialogueIndex++;
 
 
-    if (dialogueIndex >= dialogueLines.length) {
+    if (
+        dialogueIndex >=
+        dialogueLines.length
+    ) {
 
         closeDialogue();
 
@@ -441,9 +580,8 @@ function closeDialogue() {
 
     talking = false;
 
-    dialogue.style.display = "none";
-
-    heart.style.display = "none";
+    dialogue.style.display =
+        "none";
 
 }
 
@@ -452,17 +590,20 @@ function closeDialogue() {
    CLICK DIALOGUE
 ========================= */
 
-dialogue.addEventListener("click", function(event) {
+dialogue.addEventListener(
+    "click",
+    function(event) {
 
-    event.stopPropagation();
+        event.stopPropagation();
 
-    if (talking) {
+        if (talking) {
 
-        advanceDialogue();
+            advanceDialogue();
+
+        }
 
     }
-
-});
+);
 
 
 /* =========================
@@ -475,7 +616,9 @@ function gameLoop() {
 
     updateInteraction();
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(
+        gameLoop
+    );
 
 }
 
