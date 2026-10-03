@@ -25,51 +25,50 @@ body {
     overflow: hidden;
 }
 
-
-/* =========================
-   GAME
-========================= */
-
 #game {
-
     position: relative;
-
     width: 100vw;
     height: 100vh;
-
     background: black;
-
     overflow: hidden;
-
     image-rendering: pixelated;
 }
 
 
 /* =========================
-   PLAYER
-========================= */
+   PLAYER HEART
+   ========================= */
 
 #player {
-
     position: absolute;
 
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
 
     object-fit: contain;
-
     image-rendering: pixelated;
 
     z-index: 10;
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    /*
+       images.png has a black area around
+       the red heart. Screen blending makes
+       that black area disappear against the
+       black game background.
+    */
+    mix-blend-mode: screen;
 }
 
 
 /* =========================
-   INTERACTABLE OBJECT
-========================= */
+   OBJECT
+   ========================= */
 
 #object {
-
     position: absolute;
 
     width: 100px;
@@ -88,17 +87,15 @@ body {
 
 /* =========================
    INTERACTION HEART
-========================= */
+   ========================= */
 
 #interaction-heart {
-
     position: absolute;
 
     width: 20px;
     height: 20px;
 
     object-fit: contain;
-
     image-rendering: pixelated;
 
     display: none;
@@ -106,15 +103,16 @@ body {
     pointer-events: none;
 
     z-index: 20;
+
+    mix-blend-mode: screen;
 }
 
 
 /* =========================
    CONTROLS
-========================= */
+   ========================= */
 
 #hint {
-
     position: absolute;
 
     top: 20px;
@@ -130,10 +128,9 @@ body {
 
 /* =========================
    DIALOGUE BOX
-========================= */
+   ========================= */
 
 #dialogue {
-
     position: absolute;
 
     left: 50%;
@@ -142,7 +139,6 @@ body {
     transform: translateX(-50%);
 
     width: 80%;
-
     min-height: 150px;
 
     padding: 25px 30px;
@@ -158,25 +154,14 @@ body {
     cursor: pointer;
 }
 
-
-/* SPEAKER */
-
 #speaker {
-
     font-size: 20px;
-
     margin-bottom: 18px;
 }
 
-
-/* TEXT */
-
 #text {
-
     font-size: 20px;
-
     line-height: 1.5;
-
 }
 
 </style>
@@ -187,38 +172,39 @@ body {
 
 <div id="game">
 
-
-    <!-- CONTROLS -->
-
     <div id="hint">
         WASD: MOVE &nbsp;&nbsp; E / SPACE: INTERACT
     </div>
 
 
-    <!-- PLAYER -->
+    <!--
+        THIS IS NOW THE ACTUAL PLAYER.
+
+        The heart itself moves around the screen.
+    -->
 
     <img
         id="player"
-        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/heart.png"
+        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/images.png"
         alt=""
     >
 
 
-    <!-- INTERACTABLE OBJECT -->
+    <!-- Object that the player can interact with -->
 
     <div id="object"></div>
 
 
-    <!-- SMALL HEART THAT APPEARS WHEN CLOSE -->
+    <!-- Small heart that appears when near the object -->
 
     <img
         id="interaction-heart"
-        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/heart.png"
+        src="https://raw.githubusercontent.com/ngonguyenminhhai-wq/Sound-effect/main/images.png"
         alt=""
     >
 
 
-    <!-- DIALOGUE -->
+    <!-- Dialogue -->
 
     <div id="dialogue">
 
@@ -230,7 +216,6 @@ body {
 
     </div>
 
-
 </div>
 
 
@@ -238,13 +223,11 @@ body {
 
 /* =========================
    ELEMENTS
-========================= */
+   ========================= */
 
-const player =
-    document.getElementById("player");
+const player = document.getElementById("player");
 
-const object =
-    document.getElementById("object");
+const object = document.getElementById("object");
 
 const interactionHeart =
     document.getElementById("interaction-heart");
@@ -260,8 +243,8 @@ const game =
 
 
 /* =========================
-   PLAYER
-========================= */
+   PLAYER SETTINGS
+   ========================= */
 
 let playerX = 200;
 let playerY = 200;
@@ -272,8 +255,8 @@ const keys = {};
 
 
 /* =========================
-   DIALOGUE
-========================= */
+   DIALOGUE SETTINGS
+   ========================= */
 
 let talking = false;
 
@@ -291,68 +274,68 @@ const dialogueLines = [
 
 
 /* =========================
-   KEYBOARD
-========================= */
+   KEYBOARD INPUT
+   ========================= */
 
-document.addEventListener(
-    "keydown",
-    function(event) {
+document.addEventListener("keydown", function(event) {
 
-        keys[event.key.toLowerCase()] = true;
+    const key = event.key.toLowerCase();
 
-
-        /* Prevent Space from scrolling */
-
-        if (event.key === " ") {
-
-            event.preventDefault();
-
-        }
+    keys[key] = true;
 
 
-        /* INTERACTION */
+    /* Prevent Space from scrolling the page */
 
-        if (
-            event.key.toLowerCase() === "e" ||
-            event.key === " "
-        ) {
+    if (event.key === " ") {
+        event.preventDefault();
+    }
 
-            if (talking) {
 
-                advanceDialogue();
+    /* E or Space */
 
-            } else {
+    if (
+        key === "e" ||
+        event.key === " "
+    ) {
 
-                tryInteract();
+        if (talking) {
 
-            }
+            advanceDialogue();
+
+        } else {
+
+            tryInteract();
 
         }
 
     }
-);
+
+});
 
 
-document.addEventListener(
-    "keyup",
-    function(event) {
+document.addEventListener("keyup", function(event) {
 
-        keys[event.key.toLowerCase()] = false;
+    keys[event.key.toLowerCase()] = false;
 
-    }
-);
+});
 
 
 /* =========================
    MOVEMENT
-========================= */
+   ========================= */
 
 function updateMovement() {
+
+    /*
+       Don't allow movement while talking.
+    */
 
     if (talking) {
         return;
     }
 
+
+    /* WASD */
 
     if (keys["w"]) {
         playerY -= playerSpeed;
@@ -371,7 +354,9 @@ function updateMovement() {
     }
 
 
-    /* Keep player inside screen */
+    /*
+       Keep the heart inside the screen.
+    */
 
     const maxX =
         game.clientWidth - player.offsetWidth;
@@ -394,6 +379,10 @@ function updateMovement() {
         );
 
 
+    /*
+       Actually move the PNG.
+    */
+
     player.style.left =
         playerX + "px";
 
@@ -404,16 +393,18 @@ function updateMovement() {
 
 
 /* =========================
-   DISTANCE
-========================= */
+   DISTANCE TO OBJECT
+   ========================= */
 
 function getDistance() {
 
     const playerCenterX =
-        playerX + player.offsetWidth / 2;
+        playerX +
+        player.offsetWidth / 2;
 
     const playerCenterY =
-        playerY + player.offsetHeight / 2;
+        playerY +
+        player.offsetHeight / 2;
 
 
     const objectCenterX =
@@ -426,14 +417,17 @@ function getDistance() {
 
 
     const dx =
-        playerCenterX - objectCenterX;
+        playerCenterX -
+        objectCenterX;
 
     const dy =
-        playerCenterY - objectCenterY;
+        playerCenterY -
+        objectCenterY;
 
 
     return Math.sqrt(
-        dx * dx + dy * dy
+        dx * dx +
+        dy * dy
     );
 
 }
@@ -441,9 +435,13 @@ function getDistance() {
 
 /* =========================
    INTERACTION INDICATOR
-========================= */
+   ========================= */
 
 function updateInteraction() {
+
+    /*
+       Hide the small heart while talking.
+    */
 
     if (talking) {
 
@@ -451,7 +449,6 @@ function updateInteraction() {
             "none";
 
         return;
-
     }
 
 
@@ -459,16 +456,15 @@ function updateInteraction() {
         getDistance();
 
 
+    /*
+       Show it when close enough.
+    */
+
     if (distance < 120) {
 
         interactionHeart.style.display =
             "block";
 
-
-        /*
-           Put the small heart
-           above the object.
-        */
 
         interactionHeart.style.left =
             (
@@ -480,7 +476,8 @@ function updateInteraction() {
 
         interactionHeart.style.top =
             (
-                object.offsetTop - 30
+                object.offsetTop -
+                30
             ) + "px";
 
 
@@ -496,7 +493,7 @@ function updateInteraction() {
 
 /* =========================
    INTERACT
-========================= */
+   ========================= */
 
 function tryInteract() {
 
@@ -515,7 +512,7 @@ function tryInteract() {
 
 /* =========================
    START DIALOGUE
-========================= */
+   ========================= */
 
 function startDialogue() {
 
@@ -523,11 +520,14 @@ function startDialogue() {
 
     dialogueIndex = 0;
 
+
     dialogue.style.display =
         "block";
 
+
     interactionHeart.style.display =
         "none";
+
 
     showDialogueLine();
 
@@ -536,7 +536,7 @@ function startDialogue() {
 
 /* =========================
    SHOW DIALOGUE
-========================= */
+   ========================= */
 
 function showDialogueLine() {
 
@@ -547,13 +547,18 @@ function showDialogueLine() {
 
 
 /* =========================
-   ADVANCE
-========================= */
+   NEXT DIALOGUE
+   ========================= */
 
 function advanceDialogue() {
 
     dialogueIndex++;
 
+
+    /*
+       If there are no more lines,
+       close the dialogue.
+    */
 
     if (
         dialogueIndex >=
@@ -573,8 +578,8 @@ function advanceDialogue() {
 
 
 /* =========================
-   CLOSE
-========================= */
+   CLOSE DIALOGUE
+   ========================= */
 
 function closeDialogue() {
 
@@ -588,13 +593,14 @@ function closeDialogue() {
 
 /* =========================
    CLICK DIALOGUE
-========================= */
+   ========================= */
 
 dialogue.addEventListener(
     "click",
     function(event) {
 
         event.stopPropagation();
+
 
         if (talking) {
 
@@ -608,7 +614,7 @@ dialogue.addEventListener(
 
 /* =========================
    GAME LOOP
-========================= */
+   ========================= */
 
 function gameLoop() {
 
@@ -616,12 +622,14 @@ function gameLoop() {
 
     updateInteraction();
 
-    requestAnimationFrame(
-        gameLoop
-    );
+    requestAnimationFrame(gameLoop);
 
 }
 
+
+/* =========================
+   START GAME
+   ========================= */
 
 gameLoop();
 
